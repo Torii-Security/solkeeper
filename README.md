@@ -22,3 +22,9 @@ Get program hash from cluster
 ```
 npm start get-program-hash -- --programId {PROGRAM_ID} --clusterUrl {CLUSTER_URL}
 ```
+
+### Upload audit
+Upload audit
+```
+npm start upload-audit -- --clusterUrl {CLUSTER_URL} --pathToWallet {SIGNER_WALLET} --pathToParameters {PATH_TO_PARAMETERS}
+```

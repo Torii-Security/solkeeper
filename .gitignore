@@ -8,5 +8,7 @@ test-ledger
 .yarn
 docker-target
 .crates
-testing.sh
+testing-*.sh
 bin
+wallet.json
+parameters.json

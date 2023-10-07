@@ -6,3 +6,7 @@ target
 node_modules
 test-ledger
 .yarn
+docker-target
+.crates
+testing.sh
+bin

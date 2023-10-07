@@ -1,12 +1,17 @@
 use anchor_lang::prelude::*;
 
-declare_id!("ChUtZ8gRfjWvnN6WXCeqKACKk54Nu1fvLdwF567sjeXs");
+declare_id!("Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe");
 
 #[program]
 pub mod audit_verify_sol {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>, audited_program_id: Pubkey, audit_date: i64, hash: [u8; 32]) -> Result<()> {
+    pub fn initialize(
+        ctx: Context<Initialize>,
+        audited_program_id: Pubkey,
+        audit_date: i64,
+        hash: [u8; 32],
+    ) -> Result<()> {
         let audit_info = &mut ctx.accounts.audit_info;
         audit_info.audited_program_id = audited_program_id;
         audit_info.auditor = ctx.accounts.auditor.key();

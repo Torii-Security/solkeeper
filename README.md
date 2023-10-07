@@ -8,7 +8,7 @@ Have Docker installed. (on mac M1 turn rosetta feature - https://collabnix.com/w
 
 
 ## Problems
-When deployed locally - IDL is not uploaded - so verify instruction not pass.
+When deployed locally - IDL is not uploaded - so verify instruction could not pass.
 
 ## Usage
 ### Get Deployed Program Hash Validate

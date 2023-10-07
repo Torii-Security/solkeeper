@@ -2,13 +2,13 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-audit_verify_sol = "ChUtZ8gRfjWvnN6WXCeqKACKk54Nu1fvLdwF567sjeXs"
+audit_verify_sol = "H6n992DsHKFqjaUbCuSZzGZh8k2ymje9eXTuYBJVUDj7"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "http://localhost:8899"
 wallet = "/Users/przem/.config/solana/id.json"
 
 [scripts]

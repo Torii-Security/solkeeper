@@ -1,7 +1,11 @@
 import { Command } from "commander";
 import fs from "fs";
 import { sha256 } from "js-sha256";
-import { getBinFromChain, addPaddingToBuffer } from "./lib";
+import {
+  getBinFromChain,
+  addPaddingToBuffer,
+  getAllAuditsForProgram,
+} from "./lib";
 import { PublicKey } from "@solana/web3.js";
 import { uploadAudit } from "./programInstructions";
 
@@ -77,6 +81,19 @@ program
     void (async () => {
       const { clusterUrl, pathToWallet, pathToParameters } = options;
       await uploadAudit(clusterUrl, pathToWallet, pathToParameters);
+    })();
+  });
+
+program
+  .command("get-audits")
+  .description("Get audits")
+  .requiredOption("--programId <programId>", "Program ID")
+  .requiredOption("--clusterUrl <clusterUrl>", "Cluster URL")
+  .action((options) => {
+    void (async () => {
+      const { clusterUrl } = options;
+      const programId = new PublicKey(options.programId);
+      await getAllAuditsForProgram(programId, clusterUrl);
     })();
   });
 

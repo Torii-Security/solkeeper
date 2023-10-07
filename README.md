@@ -28,3 +28,9 @@ Upload audit
 ```
 npm start upload-audit -- --clusterUrl {CLUSTER_URL} --pathToWallet {SIGNER_WALLET} --pathToParameters {PATH_TO_PARAMETERS}
 ```
+
+### Get audits
+Get valid and stale audits for program
+```
+npm start get-audits -- --clusterUrl {CLUSTER_URL} --programId {PROGRAM_ID}
+```

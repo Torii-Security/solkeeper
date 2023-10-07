@@ -10,7 +10,7 @@ import { AnchorProvider, Provider, web3, Wallet } from "@coral-xyz/anchor";
 import { createInitializeInstruction } from "../generated/index";
 import * as fs from "fs";
 
-function hexToUint8Array(hex: string): number[] {
+export function hexToUint8Array(hex: string): number[] {
   const result = [];
   for (let i = 0; i < hex.length; i += 2) {
     result.push(parseInt(hex.substr(i, 2), 16));

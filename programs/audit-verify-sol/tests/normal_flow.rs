@@ -2,15 +2,17 @@ use solana_program_test::*;
 
 use audit_verify_sol;
 
+use anchor_client::anchor_lang::{InstructionData, ToAccountMetas};
 use anchor_client::solana_sdk::{
     account::Account,
     instruction::Instruction,
     pubkey::Pubkey,
-    signature::{Signer, Keypair},
-    transaction::Transaction,
+    signature::{Keypair, Signer},
     system_program,
+    transaction::Transaction,
 };
-use anchor_client::anchor_lang::{InstructionData, ToAccountMetas};
+
+pub const PLATFORM_CONFIG_SEED: &'static [u8; 8] = b"platform";
 
 #[tokio::test]
 async fn happy_flow() {
@@ -22,6 +24,7 @@ async fn happy_flow() {
     );
 
     let auditor = Keypair::new();
+    let owner = Keypair::new();
     let audit_info_acc = Keypair::new();
 
     program.add_account(
@@ -32,25 +35,44 @@ async fn happy_flow() {
         },
     );
 
+    program.add_account(
+        owner.pubkey(),
+        Account {
+            lamports: 1_000_000_000,
+            ..Account::default()
+        },
+    );
+
+    let (platform_config_info, _) =
+        Pubkey::find_program_address(&[PLATFORM_CONFIG_SEED], &audit_verify_sol::id());
+
+    let escrow_amount = 5_000_000_000; // 1 SOL
+    let fee = 100_000_000; // 0.1 SOL
+    let timelock = 5 * 86400; // 5 days
+    let verifiers = [owner.pubkey(); 5];
+
     let (mut banks_client, payer_keypair, recent_blockhash) = program.start().await;
 
     let init = Instruction {
         program_id: audit_verify_sol::id(),
-        data: audit_verify_sol::instruction::Initialize {
-            audited_program_id: Pubkey::new_unique(),
-            audit_date: 0,
-            hash: [0; 32],
-        }.data(),
-        accounts: audit_verify_sol::accounts::Initialize {
-            audit_info: audit_info_acc.pubkey(),
-            auditor: auditor.pubkey(),
+        data: audit_verify_sol::instruction::InitializePlatform {
+            escrow_amount,
+            fee,
+            timelock,
+            verifiers,
+        }
+        .data(),
+        accounts: audit_verify_sol::accounts::InitializePlatform {
+            platform_config_info,
+            owner: owner.pubkey(),
             system_program: system_program::ID,
-        }.to_account_metas(None),
+        }
+        .to_account_metas(None),
     };
 
-    let mut init_tx = Transaction::new_with_payer(&[init], Some(&auditor.pubkey()));
+    let mut init_tx = Transaction::new_with_payer(&[init], Some(&owner.pubkey()));
 
-    init_tx.partial_sign(&[&auditor, &audit_info_acc], recent_blockhash);
+    init_tx.partial_sign(&[&owner], recent_blockhash);
 
     banks_client.process_transaction(init_tx).await.unwrap();
 }

@@ -126,4 +126,23 @@ async fn happy_flow() {
     init_tx.partial_sign(&[&owner], recent_blockhash);
 
     banks_client.process_transaction(init_tx).await.unwrap();
+
+    let modify_auditor_status = Instruction {
+        program_id: audit_verify_sol::id(),
+        data: audit_verify_sol::instruction::ModifyAuditorVerifyStatus { is_verified: true }.data(),
+        accounts: audit_verify_sol::accounts::ModifyAuditorVerifyStatus {
+            platform_config_info,
+            verifier: owner.pubkey(),
+            auditor_info,
+            auditor: auditor.pubkey(),
+            system_program: system_program::ID,
+        }
+        .to_account_metas(None),
+    };
+
+    let mut init_tx = Transaction::new_with_payer(&[modify_auditor_status], Some(&owner.pubkey()));
+
+    init_tx.partial_sign(&[&owner], recent_blockhash);
+
+    banks_client.process_transaction(init_tx).await.unwrap();
 }

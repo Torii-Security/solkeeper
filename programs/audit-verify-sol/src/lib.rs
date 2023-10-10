@@ -173,6 +173,15 @@ pub mod audit_verify_sol {
         auditor_info.is_active = false;
         Ok(())
     }
+
+    pub fn modify_auditor_verify_status(
+        ctx: Context<ModifyAuditorVerifyStatus>,
+        is_verified: bool
+    ) -> Result<()> {
+        let auditor_info = &mut ctx.accounts.auditor_info;
+        auditor_info.is_verified = is_verified;
+        Ok(())
+    }
     
 }
 
@@ -261,6 +270,26 @@ pub struct DeactivateAuditor<'info> {
         bump
     )]
     pub platform_config_info: Account<'info, PlatformConfig>,
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct ModifyAuditorVerifyStatus<'info> {
+    #[account(
+        seeds = [AUDITOR_SEED, auditor.key().as_ref()], 
+        bump
+    )]
+    pub auditor_info: Account<'info, AuditorInfo>,
+    #[account(mut)]
+    pub auditor: AccountInfo<'info>,
+    #[account(
+        seeds = [PLATFORM_CONFIG_SEED],
+        constraint = platform_config_info.verifiers.iter().any(|x| *x == verifier.key()),
+        bump
+    )]
+    pub platform_config_info: Account<'info, PlatformConfig>,
+    #[account(mut)]
+    pub verifier: Signer<'info>,
     pub system_program: Program<'info, System>,
 }
 

@@ -8,6 +8,7 @@ pub mod audit_verify_sol {
     pub const PLATFORM_CONFIG_SEED: &'static [u8; 8] = b"platform";
     pub const AUDITOR_SEED: &'static [u8; 8] = b"auditors";
     pub const FEE_VAULT: &'static [u8; 8] = b"feevault";
+    pub const AUDIT_SEED: &'static [u8; 8] = b"audit123";
 
     
     #[error_code]
@@ -16,6 +17,8 @@ pub mod audit_verify_sol {
         NameTooLarge,
         #[msg("Max url length is 255")]
         UrlTooLarge,
+        #[msg("Max summary length is 255")]
+        SummaryTooLarge,
         #[msg("Insufficient Balance")]
         InsufficientBalance,
         #[msg("Too early to deactivate")]
@@ -24,17 +27,28 @@ pub mod audit_verify_sol {
         Overflow
     }
 
-    pub fn initialize_audit(
-        ctx: Context<Initialize>,
-        audited_program_id: Pubkey,
+    pub fn add_audit(
+        ctx: Context<AddAudit>,
+        audited_program_id: Pubkey, 
+        audited_implementation: Pubkey,
         audit_date: i64,
         hash: [u8; 32],
+        audit_file_hash: [u8; 32],
+        audit_summary: String,
+        audit_url: String
     ) -> Result<()> {
         let audit_info = &mut ctx.accounts.audit_info;
+
+        require!(audit_summary.len() < 255, Errors::SummaryTooLarge);
+        require!(audit_url.len() < 255, Errors::UrlTooLarge);
+
         audit_info.audited_program_id = audited_program_id;
+        audit_info.audited_implementation = audited_implementation;
         audit_info.auditor = ctx.accounts.auditor.key();
         audit_info.audit_date = audit_date;
-        audit_info.entry_creation_date = Clock::get().unwrap().unix_timestamp;
+        audit_info.audit_url = audit_url;
+        audit_info.audit_summary = audit_summary;
+        audit_info.audit_file_hash = audit_file_hash;
         audit_info.hash = hash;
         Ok(())
     }
@@ -186,13 +200,16 @@ pub mod audit_verify_sol {
 }
 
 #[account]
-#[derive(Default, InitSpace)]
+#[derive(Default)]
 pub struct AuditInfo {
     audited_program_id: Pubkey,
+    audited_implementation: Pubkey,
     auditor: Pubkey,
     audit_date: i64,
-    entry_creation_date: i64,
     hash: [u8; 32],
+    audit_url: String,
+    audit_summary: String,
+    audit_file_hash: [u8; 32],
 }
 
 #[account]
@@ -218,9 +235,27 @@ pub struct AuditorInfo {
 }
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(init, payer = auditor, space = 8 + std::mem::size_of::<AuditInfo>() + 8)]
+#[instruction(audited_program_id: Pubkey, audited_implementation: Pubkey)]
+pub struct AddAudit<'info> {
+    #[account(
+        init, 
+        seeds = [
+                    AUDIT_SEED, 
+                    audited_program_id.as_ref(), 
+                    audited_implementation.as_ref(), 
+                    auditor_info.key().as_ref()
+                ], 
+        payer = auditor, 
+        space = 8 + std::mem::size_of::<AuditInfo>() + 8,
+        bump
+    )]
     pub audit_info: Account<'info, AuditInfo>,
+    #[account(
+        seeds = [AUDITOR_SEED, auditor.key().as_ref()], 
+        constraint = auditor_info.is_active,
+        bump
+    )]
+    pub auditor_info: Account<'info, AuditorInfo>,
     #[account(mut)]
     pub auditor: Signer<'info>,
     pub system_program: Program<'info, System>,

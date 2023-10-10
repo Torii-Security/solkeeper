@@ -1,3 +1,4 @@
+use anchor_lang::prelude::Clock;
 use solana_program_test::*;
 
 use audit_verify_sol;
@@ -15,6 +16,7 @@ use anchor_client::solana_sdk::{
 pub const PLATFORM_CONFIG_SEED: &'static [u8; 8] = b"platform";
 pub const AUDITOR_SEED: &'static [u8; 8] = b"auditors";
 pub const FEE_VAULT: &'static [u8; 8] = b"feevault";
+pub const AUDIT_SEED: &'static [u8; 8] = b"audit123";
 
 #[tokio::test]
 async fn happy_flow() {
@@ -45,11 +47,24 @@ async fn happy_flow() {
         },
     );
 
+    let audited_program_id = Pubkey::new_unique();
+    let audited_implementation = Pubkey::new_unique();
+
     let (platform_config_info, _) =
         Pubkey::find_program_address(&[PLATFORM_CONFIG_SEED], &audit_verify_sol::id());
 
     let (auditor_info, _) = Pubkey::find_program_address(
         &[AUDITOR_SEED, auditor.pubkey().as_ref()],
+        &audit_verify_sol::id(),
+    );
+
+    let (audit_info, _) = Pubkey::find_program_address(
+        &[
+            AUDIT_SEED,
+            audited_program_id.as_ref(),
+            audited_implementation.as_ref(),
+            auditor_info.as_ref(),
+        ],
         &audit_verify_sol::id(),
     );
 
@@ -143,6 +158,33 @@ async fn happy_flow() {
     let mut init_tx = Transaction::new_with_payer(&[modify_auditor_status], Some(&owner.pubkey()));
 
     init_tx.partial_sign(&[&owner], recent_blockhash);
+
+    banks_client.process_transaction(init_tx).await.unwrap();
+
+    let add_audit = Instruction {
+        program_id: audit_verify_sol::id(),
+        data: audit_verify_sol::instruction::AddAudit {
+            audited_program_id,
+            audited_implementation,
+            audit_date: 1000000000000000,
+            hash: [10; 32],
+            audit_file_hash: [10; 32],
+            audit_summary: String::from("LGTM"),
+            audit_url: String::from("Link to file"),
+        }
+        .data(),
+        accounts: audit_verify_sol::accounts::AddAudit {
+            audit_info,
+            auditor_info,
+            auditor: auditor.pubkey(),
+            system_program: system_program::ID,
+        }
+        .to_account_metas(None),
+    };
+
+    let mut init_tx = Transaction::new_with_payer(&[add_audit], Some(&auditor.pubkey()));
+
+    init_tx.partial_sign(&[&auditor], recent_blockhash);
 
     banks_client.process_transaction(init_tx).await.unwrap();
 }

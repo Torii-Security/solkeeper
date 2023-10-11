@@ -35,7 +35,7 @@ export const modifyAuditorVerifyStatusStruct = new beet.BeetArgsStruct<
 /**
  * Accounts required by the _modifyAuditorVerifyStatus_ instruction
  *
- * @property [] auditorInfo
+ * @property [_writable_] auditorInfo
  * @property [_writable_] auditor
  * @property [] platformConfigInfo
  * @property [_writable_, **signer**] verifier
@@ -78,7 +78,7 @@ export function createModifyAuditorVerifyStatusInstruction(
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.auditorInfo,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {

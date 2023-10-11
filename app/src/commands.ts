@@ -1,6 +1,10 @@
 import input from "@inquirer/input";
 import confirm from "@inquirer/confirm";
-import { initializeAuditorAccount, verifyAuditor } from "./programInstructions";
+import {
+  initializeAuditorAccount,
+  verifyAuditor,
+  getAuditorFromChain,
+} from "./programInstructions";
 
 export async function addAuditorAccountCommand(
   pathToWallet: string,
@@ -54,4 +58,18 @@ export async function verifyAuditorCommand(
     auditorPubkey,
     isVerified === "true" ? true : false
   );
+}
+
+export async function getAuditorCommand(clusterUrl: string) {
+  const auditorPubkey = await input({
+    message: "Auditor pubkey:",
+  });
+
+  await confirm({
+    message: `
+            Auditor pubkey: ${auditorPubkey}
+      `,
+  });
+
+  await getAuditorFromChain(clusterUrl, auditorPubkey);
 }

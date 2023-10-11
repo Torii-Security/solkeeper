@@ -8,7 +8,11 @@ import {
 } from "./lib";
 import { PublicKey } from "@solana/web3.js";
 import { uploadAudit, initializePlatform } from "./programInstructions";
-import { addAuditorAccountCommand, verifyAuditorCommand } from "./commands";
+import {
+  addAuditorAccountCommand,
+  verifyAuditorCommand,
+  getAuditorCommand,
+} from "./commands";
 import select, { Separator } from "@inquirer/select";
 
 const packageJson = require("../package.json");
@@ -148,6 +152,11 @@ program
             description: "Add a new audit.",
           },
           {
+            name: "Get auditor",
+            value: "getAuditor",
+            description: "Get information about auditor",
+          },
+          {
             name: "Get audits for program.",
             value: "getAudits",
             description: "Get audits for Solana program.",
@@ -171,6 +180,9 @@ program
           break;
         case "getAudits":
           console.log("Not implemented");
+          break;
+        case "getAuditor":
+          await getAuditorCommand(clusterUrl);
           break;
         case "verify":
           await verifyAuditorCommand(pathToWallet, clusterUrl);

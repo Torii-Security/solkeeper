@@ -150,6 +150,7 @@ pub mod solkeeper {
         auditor_info.name = name;
         auditor_info.url = url;
         auditor_info.is_active = true;
+        auditor_info.is_verified = false;
         Ok(())
     }
 
@@ -230,7 +231,7 @@ pub struct AuditorInfo {
     owner: Pubkey,
     registration_time: i64,
     escrow_amount: u64,
-    is_verified: bool,
+    pub is_verified: bool,
     is_active: bool
 }
 
@@ -312,6 +313,7 @@ pub struct DeactivateAuditor<'info> {
 #[derive(Accounts)]
 pub struct ModifyAuditorVerifyStatus<'info> {
     #[account(
+        mut,
         seeds = [AUDITOR_SEED, auditor.key().as_ref()], 
         bump
     )]

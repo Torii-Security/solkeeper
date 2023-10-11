@@ -1,7 +1,8 @@
 use anchor_lang::prelude::Clock;
+use anchor_lang::AccountDeserialize;
 use solana_program_test::*;
 
-use solkeeper;
+use solkeeper::{self, AuditorInfo};
 
 use anchor_client::anchor_lang::{InstructionData, ToAccountMetas};
 use anchor_client::solana_sdk::{
@@ -158,6 +159,18 @@ async fn happy_flow() {
     init_tx.partial_sign(&[&owner], recent_blockhash);
 
     banks_client.process_transaction(init_tx).await.unwrap();
+
+    let auditor_account_data = banks_client
+        .get_account(auditor_info)
+        .await
+        .unwrap()
+        .unwrap();
+
+    let auditor_deser = AuditorInfo::try_deserialize(&mut auditor_account_data.data.as_ref())
+        .map_err(|_| BanksClientError::ClientError("Failed to deserialize account"))
+        .unwrap();
+
+    assert_eq!(auditor_deser.is_verified, true);
 
     let add_audit = Instruction {
         program_id: solkeeper::id(),

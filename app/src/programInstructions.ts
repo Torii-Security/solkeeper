@@ -13,6 +13,7 @@ import {
   createInitializePlatformInstruction,
   createInitializeAuditorInstruction,
   createModifyAuditorVerifyStatusInstruction,
+  AuditorInfo,
 } from "../generated";
 import * as fs from "fs";
 import { BN } from "bn.js";
@@ -221,4 +222,33 @@ export async function verifyAuditor(
   await sendAndConfirmTransaction(connection, transaction, [userKP]);
 
   console.log("Transaction confirmed. Auditor account status modified");
+}
+
+export async function getAuditorFromChain(
+  clusterUrl: string,
+  auditorPKString: string
+) {
+  // Connect to the local Solana cluster
+  const connection = new Connection(clusterUrl, "confirmed");
+
+  // Read wallet key pair from the JSON file
+  const auditorPubkey = new PublicKey(auditorPKString);
+
+  const [auditorInfo, bump2] = await PublicKey.findProgramAddress(
+    [Buffer.from("auditors"), auditorPubkey.toBuffer()],
+    PROGRAM_ID
+  );
+
+  const auditorInfoData = await connection.getAccountInfo(auditorInfo);
+
+  if (!auditorInfoData || auditorInfoData?.data.length == 0) {
+    console.log("Auditor not registered");
+  }
+
+  if (auditorInfoData) {
+    const [auditorInfoDeserialized, num] =
+      AuditorInfo.fromAccountInfo(auditorInfoData);
+    console.log(auditorInfoDeserialized.isVerified);
+    console.log(auditorInfoDeserialized.pretty());
+  }
 }

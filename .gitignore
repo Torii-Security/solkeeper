@@ -12,3 +12,4 @@ testing-*.sh
 bin
 wallet.json
 parameters.json
+admin.json

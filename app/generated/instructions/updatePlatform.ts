@@ -74,7 +74,7 @@ export const updatePlatformInstructionDiscriminator = [
 export function createUpdatePlatformInstruction(
   accounts: UpdatePlatformInstructionAccounts,
   args: UpdatePlatformInstructionArgs,
-  programId = new web3.PublicKey('Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe')
+  programId = new web3.PublicKey('3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg')
 ) {
   const [data] = updatePlatformStruct.serialize({
     instructionDiscriminator: updatePlatformInstructionDiscriminator,

@@ -92,7 +92,7 @@ export class PlatformConfig implements PlatformConfigArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      'Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe'
+      '3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, platformConfigBeet)

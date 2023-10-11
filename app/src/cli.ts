@@ -8,6 +8,8 @@ import {
 } from "./lib";
 import { PublicKey } from "@solana/web3.js";
 import { uploadAudit } from "./programInstructions";
+// import { select, prompt } from "inquirer";
+import select, { Separator } from "@inquirer/select";
 
 const packageJson = require("../package.json");
 const version: string = packageJson.version;
@@ -94,6 +96,55 @@ program
       const { clusterUrl } = options;
       const programId = new PublicKey(options.programId);
       await getAllAuditsForProgram(programId, clusterUrl);
+    })();
+  });
+
+program
+  .command("start")
+  .description("Start")
+  .option("--pathToWallet <pathToWallet>", "Path to wallet")
+  .action((options) => {
+    void (async () => {
+      const answer = await select({
+        message: "Select a package manager",
+        choices: [
+          {
+            name: "Add auditor account",
+            value: "addAuditorAccount",
+            description: "Add new auditor account.",
+          },
+          {
+            name: "Add audit",
+            value: "addAudit",
+            description: "Add a new audit.",
+          },
+          {
+            name: "Get audits for program.",
+            value: "getAudits",
+            description: "Get audits for Solana program.",
+          },
+          {
+            name: "Verify an auditor",
+            value: "verify",
+            description: "Can be called only by verifier.",
+          },
+        ],
+      });
+
+      switch (answer) {
+        case "addAuditorAccount":
+          console.log("Not implemented");
+          break;
+        case "addAudit":
+          console.log("Not implemented");
+          break;
+        case "getAudits":
+          console.log("Not implemented");
+          break;
+        case "verify":
+          console.log("Not implemented");
+          break;
+      }
     })();
   });
 

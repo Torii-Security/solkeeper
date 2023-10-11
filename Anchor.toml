@@ -2,14 +2,14 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-audit_verify_sol = "Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe"
+audit_verify_sol = "3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
 cluster = "http://localhost:8899"
-wallet = "/Users/przem/.config/solana/id.json"
+wallet = "admin.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

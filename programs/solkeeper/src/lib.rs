@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe");
+declare_id!("3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg");
 
 #[program]
 pub mod solkeeper {

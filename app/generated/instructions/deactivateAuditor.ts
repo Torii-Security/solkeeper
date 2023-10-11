@@ -67,7 +67,7 @@ export const deactivateAuditorInstructionDiscriminator = [
 export function createDeactivateAuditorInstruction(
   accounts: DeactivateAuditorInstructionAccounts,
   args: DeactivateAuditorInstructionArgs,
-  programId = new web3.PublicKey('Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe')
+  programId = new web3.PublicKey('3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg')
 ) {
   const [data] = deactivateAuditorStruct.serialize({
     instructionDiscriminator: deactivateAuditorInstructionDiscriminator,

@@ -7,7 +7,7 @@ import {
   SystemProgram,
 } from "@solana/web3.js";
 import { AnchorProvider, Provider, web3, Wallet } from "@coral-xyz/anchor";
-import { createInitializeInstruction } from "../generated/index";
+// import { createInitializeInstruction } from "../generated/index";
 import * as fs from "fs";
 
 export function hexToUint8Array(hex: string): number[] {
@@ -49,23 +49,23 @@ export async function uploadAudit(
   const hashHex = parameters.hash;
   const hashUint8Array = hexToUint8Array(hashHex);
 
-  // Initialize your program's ID and initialize a client
-  let ix = createInitializeInstruction(
-    {
-      auditInfo: auditInfo.publicKey,
-      auditor: walletKeyPair.publicKey,
-      systemProgram: SystemProgram.programId,
-    },
-    {
-      auditedProgramId,
-      auditDate,
-      hash: hashUint8Array,
-    }
-  );
+  // // Initialize your program's ID and initialize a client
+  // let ix = createInitializeInstruction(
+  //   {
+  //     auditInfo: auditInfo.publicKey,
+  //     auditor: walletKeyPair.publicKey,
+  //     systemProgram: SystemProgram.programId,
+  //   },
+  //   {
+  //     auditedProgramId,
+  //     auditDate,
+  //     hash: hashUint8Array,
+  //   }
+  // );
 
-  // Sign and send the transaction
-  let transaction: Transaction = new Transaction().add(ix);
-  await sendAndConfirmTransaction(connection, transaction, [userKP, auditInfo]);
+  // // Sign and send the transaction
+  // let transaction: Transaction = new Transaction().add(ix);
+  // await sendAndConfirmTransaction(connection, transaction, [userKP, auditInfo]);
 
   console.log(
     "Transaction confirmed. Audit account created: " + auditInfo.publicKey

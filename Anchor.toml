@@ -2,7 +2,7 @@
 seeds = false
 skip-lint = false
 [programs.localnet]
-audit_verify_sol = "3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg"
+solkeeper = "3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg"
 
 [registry]
 url = "https://api.apr.dev"

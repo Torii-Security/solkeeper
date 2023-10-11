@@ -7,8 +7,8 @@ import {
   getAllAuditsForProgram,
 } from "./lib";
 import { PublicKey } from "@solana/web3.js";
-import { uploadAudit } from "./programInstructions";
-// import { select, prompt } from "inquirer";
+import { uploadAudit, initializePlatform } from "./programInstructions";
+import { addAuditorAccountCommand, verifyAuditorCommand } from "./commands";
 import select, { Separator } from "@inquirer/select";
 
 const packageJson = require("../package.json");
@@ -47,6 +47,34 @@ program
 
         const binHash = sha256(buf1);
         console.log(binHash);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    })();
+  });
+
+program
+  .command("initialize")
+  .description("Initialize platform")
+  .requiredOption("--pathToWallet <pathToWallet>", "Path to wallet")
+  .requiredOption("--clusterUrl <clusterUrl>", "Cluster URL")
+  .requiredOption(
+    "--escrowAmount <escrowAmount>",
+    "Amount of escrow in lamports"
+  )
+  .requiredOption("--fee <fee>", "Fee in lamports")
+  .requiredOption("--timelock <timelock>", "Escrow timelock")
+  .action((options) => {
+    void (async () => {
+      const { pathToWallet, clusterUrl, escrowAmount, fee, timelock } = options;
+      try {
+        initializePlatform(
+          clusterUrl,
+          pathToWallet,
+          escrowAmount,
+          fee,
+          timelock
+        );
       } catch (error) {
         console.error("Error:", error);
       }
@@ -103,6 +131,7 @@ program
   .command("start")
   .description("Start")
   .option("--pathToWallet <pathToWallet>", "Path to wallet")
+  .requiredOption("--clusterUrl <clusterUrl>", "Cluster URL")
   .action((options) => {
     void (async () => {
       const answer = await select({
@@ -131,9 +160,11 @@ program
         ],
       });
 
+      const { pathToWallet, clusterUrl } = options;
+
       switch (answer) {
         case "addAuditorAccount":
-          console.log("Not implemented");
+          await addAuditorAccountCommand(pathToWallet, clusterUrl);
           break;
         case "addAudit":
           console.log("Not implemented");
@@ -142,7 +173,7 @@ program
           console.log("Not implemented");
           break;
         case "verify":
-          console.log("Not implemented");
+          await verifyAuditorCommand(pathToWallet, clusterUrl);
           break;
       }
     })();

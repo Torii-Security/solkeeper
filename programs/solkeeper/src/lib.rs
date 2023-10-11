@@ -274,6 +274,7 @@ pub struct InitializeAuditor<'info> {
     pub auditor_info: Account<'info, AuditorInfo>,
     #[account(mut)]
     pub auditor: Signer<'info>,
+    /// CHECK: Verified by PDA
     #[account(
         mut,
         seeds = [FEE_VAULT], 
@@ -315,6 +316,7 @@ pub struct ModifyAuditorVerifyStatus<'info> {
         bump
     )]
     pub auditor_info: Account<'info, AuditorInfo>,
+     /// CHECK: Verified by PDA
     #[account(mut)]
     pub auditor: AccountInfo<'info>,
     #[account(
@@ -364,12 +366,14 @@ pub struct WithdrawFee<'info> {
         bump
     )]
     pub platform_config_info: Account<'info, PlatformConfig>,
+    /// CHECK: Verified by PDA
     #[account(
         mut,
         seeds = [FEE_VAULT], 
         bump
     )]
     pub fee_vault_info: AccountInfo<'info>,
+     /// CHECK: Any receiver, protected as only admin can call
     #[account(mut)]
     pub receiver: AccountInfo<'info>,
     #[account(mut)]

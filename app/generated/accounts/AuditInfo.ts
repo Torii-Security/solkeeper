@@ -16,10 +16,13 @@ import * as beetSolana from '@metaplex-foundation/beet-solana'
  */
 export type AuditInfoArgs = {
   auditedProgramId: web3.PublicKey
+  auditedImplementation: web3.PublicKey
   auditor: web3.PublicKey
   auditDate: beet.bignum
-  entryCreationDate: beet.bignum
   hash: number[] /* size: 32 */
+  auditUrl: string
+  auditSummary: string
+  auditFileHash: number[] /* size: 32 */
 }
 
 export const auditInfoDiscriminator = [230, 114, 91, 175, 24, 12, 93, 178]
@@ -33,10 +36,13 @@ export const auditInfoDiscriminator = [230, 114, 91, 175, 24, 12, 93, 178]
 export class AuditInfo implements AuditInfoArgs {
   private constructor(
     readonly auditedProgramId: web3.PublicKey,
+    readonly auditedImplementation: web3.PublicKey,
     readonly auditor: web3.PublicKey,
     readonly auditDate: beet.bignum,
-    readonly entryCreationDate: beet.bignum,
-    readonly hash: number[] /* size: 32 */
+    readonly hash: number[] /* size: 32 */,
+    readonly auditUrl: string,
+    readonly auditSummary: string,
+    readonly auditFileHash: number[] /* size: 32 */
   ) {}
 
   /**
@@ -45,10 +51,13 @@ export class AuditInfo implements AuditInfoArgs {
   static fromArgs(args: AuditInfoArgs) {
     return new AuditInfo(
       args.auditedProgramId,
+      args.auditedImplementation,
       args.auditor,
       args.auditDate,
-      args.entryCreationDate,
-      args.hash
+      args.hash,
+      args.auditUrl,
+      args.auditSummary,
+      args.auditFileHash
     )
   }
 
@@ -119,34 +128,36 @@ export class AuditInfo implements AuditInfoArgs {
 
   /**
    * Returns the byteSize of a {@link Buffer} holding the serialized data of
-   * {@link AuditInfo}
+   * {@link AuditInfo} for the provided args.
+   *
+   * @param args need to be provided since the byte size for this account
+   * depends on them
    */
-  static get byteSize() {
-    return auditInfoBeet.byteSize
+  static byteSize(args: AuditInfoArgs) {
+    const instance = AuditInfo.fromArgs(args)
+    return auditInfoBeet.toFixedFromValue({
+      accountDiscriminator: auditInfoDiscriminator,
+      ...instance,
+    }).byteSize
   }
 
   /**
    * Fetches the minimum balance needed to exempt an account holding
    * {@link AuditInfo} data from rent
    *
+   * @param args need to be provided since the byte size for this account
+   * depends on them
    * @param connection used to retrieve the rent exemption information
    */
   static async getMinimumBalanceForRentExemption(
+    args: AuditInfoArgs,
     connection: web3.Connection,
     commitment?: web3.Commitment
   ): Promise<number> {
     return connection.getMinimumBalanceForRentExemption(
-      AuditInfo.byteSize,
+      AuditInfo.byteSize(args),
       commitment
     )
-  }
-
-  /**
-   * Determines if the provided {@link Buffer} has the correct byte size to
-   * hold {@link AuditInfo} data.
-   */
-  static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === AuditInfo.byteSize
   }
 
   /**
@@ -156,6 +167,7 @@ export class AuditInfo implements AuditInfoArgs {
   pretty() {
     return {
       auditedProgramId: this.auditedProgramId.toBase58(),
+      auditedImplementation: this.auditedImplementation.toBase58(),
       auditor: this.auditor.toBase58(),
       auditDate: (() => {
         const x = <{ toNumber: () => number }>this.auditDate
@@ -168,18 +180,10 @@ export class AuditInfo implements AuditInfoArgs {
         }
         return x
       })(),
-      entryCreationDate: (() => {
-        const x = <{ toNumber: () => number }>this.entryCreationDate
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber()
-          } catch (_) {
-            return x
-          }
-        }
-        return x
-      })(),
       hash: this.hash,
+      auditUrl: this.auditUrl,
+      auditSummary: this.auditSummary,
+      auditFileHash: this.auditFileHash,
     }
   }
 }
@@ -188,7 +192,7 @@ export class AuditInfo implements AuditInfoArgs {
  * @category Accounts
  * @category generated
  */
-export const auditInfoBeet = new beet.BeetStruct<
+export const auditInfoBeet = new beet.FixableBeetStruct<
   AuditInfo,
   AuditInfoArgs & {
     accountDiscriminator: number[] /* size: 8 */
@@ -197,10 +201,13 @@ export const auditInfoBeet = new beet.BeetStruct<
   [
     ['accountDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
     ['auditedProgramId', beetSolana.publicKey],
+    ['auditedImplementation', beetSolana.publicKey],
     ['auditor', beetSolana.publicKey],
     ['auditDate', beet.i64],
-    ['entryCreationDate', beet.i64],
     ['hash', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['auditUrl', beet.utf8String],
+    ['auditSummary', beet.utf8String],
+    ['auditFileHash', beet.uniformFixedSizeArray(beet.u8, 32)],
   ],
   AuditInfo.fromArgs,
   'AuditInfo'

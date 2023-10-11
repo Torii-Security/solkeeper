@@ -5,85 +5,87 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as web3 from '@solana/web3.js'
 import * as beet from '@metaplex-foundation/beet'
+import * as web3 from '@solana/web3.js'
 import * as beetSolana from '@metaplex-foundation/beet-solana'
 
 /**
  * @category Instructions
- * @category Initialize
+ * @category InitializePlatform
  * @category generated
  */
-export type InitializeInstructionArgs = {
-  auditedProgramId: web3.PublicKey
-  auditDate: beet.bignum
-  hash: number[] /* size: 32 */
+export type InitializePlatformInstructionArgs = {
+  escrowAmount: beet.bignum
+  fee: beet.bignum
+  timelock: beet.bignum
+  verifiers: web3.PublicKey[] /* size: 5 */
 }
 /**
  * @category Instructions
- * @category Initialize
+ * @category InitializePlatform
  * @category generated
  */
-export const initializeStruct = new beet.BeetArgsStruct<
-  InitializeInstructionArgs & {
+export const initializePlatformStruct = new beet.BeetArgsStruct<
+  InitializePlatformInstructionArgs & {
     instructionDiscriminator: number[] /* size: 8 */
   }
 >(
   [
     ['instructionDiscriminator', beet.uniformFixedSizeArray(beet.u8, 8)],
-    ['auditedProgramId', beetSolana.publicKey],
-    ['auditDate', beet.i64],
-    ['hash', beet.uniformFixedSizeArray(beet.u8, 32)],
+    ['escrowAmount', beet.u64],
+    ['fee', beet.u64],
+    ['timelock', beet.i64],
+    ['verifiers', beet.uniformFixedSizeArray(beetSolana.publicKey, 5)],
   ],
-  'InitializeInstructionArgs'
+  'InitializePlatformInstructionArgs'
 )
 /**
- * Accounts required by the _initialize_ instruction
+ * Accounts required by the _initializePlatform_ instruction
  *
- * @property [_writable_, **signer**] auditInfo
- * @property [_writable_, **signer**] auditor
+ * @property [_writable_] platformConfigInfo
+ * @property [_writable_, **signer**] owner
  * @category Instructions
- * @category Initialize
+ * @category InitializePlatform
  * @category generated
  */
-export type InitializeInstructionAccounts = {
-  auditInfo: web3.PublicKey
-  auditor: web3.PublicKey
+export type InitializePlatformInstructionAccounts = {
+  platformConfigInfo: web3.PublicKey
+  owner: web3.PublicKey
   systemProgram?: web3.PublicKey
   anchorRemainingAccounts?: web3.AccountMeta[]
 }
 
-export const initializeInstructionDiscriminator = [
-  175, 175, 109, 31, 13, 152, 155, 237,
+export const initializePlatformInstructionDiscriminator = [
+  119, 201, 101, 45, 75, 122, 89, 3,
 ]
 
 /**
- * Creates a _Initialize_ instruction.
+ * Creates a _InitializePlatform_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category Initialize
+ * @category InitializePlatform
  * @category generated
  */
-export function createInitializeInstruction(
-  accounts: InitializeInstructionAccounts,
-  args: InitializeInstructionArgs,
+export function createInitializePlatformInstruction(
+  accounts: InitializePlatformInstructionAccounts,
+  args: InitializePlatformInstructionArgs,
   programId = new web3.PublicKey('Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe')
 ) {
-  const [data] = initializeStruct.serialize({
-    instructionDiscriminator: initializeInstructionDiscriminator,
+  const [data] = initializePlatformStruct.serialize({
+    instructionDiscriminator: initializePlatformInstructionDiscriminator,
     ...args,
   })
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: accounts.auditInfo,
+      pubkey: accounts.platformConfigInfo,
       isWritable: true,
-      isSigner: true,
+      isSigner: false,
     },
     {
-      pubkey: accounts.auditor,
+      pubkey: accounts.owner,
       isWritable: true,
       isSigner: true,
     },

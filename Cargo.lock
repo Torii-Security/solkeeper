@@ -552,16 +552,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "audit-verify-sol"
-version = "0.1.0"
-dependencies = [
- "anchor-client",
- "anchor-lang",
- "solana-program-test",
- "tokio",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4462,6 +4452,16 @@ dependencies = [
  "scroll",
  "thiserror",
  "winapi",
+]
+
+[[package]]
+name = "solkeeper"
+version = "0.1.0"
+dependencies = [
+ "anchor-client",
+ "anchor-lang",
+ "solana-program-test",
+ "tokio",
 ]
 
 [[package]]

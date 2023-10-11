@@ -1,12 +1,12 @@
 [package]
-name = "audit-verify-sol"
+name = "solkeeper"
 version = "0.1.0"
-description = "Created with Anchor"
+description = "Solana on-chain verifiable audits."
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "audit_verify_sol"
+name = "solkeeper"
 
 [features]
 no-entrypoint = []

@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 declare_id!("Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe");
 
 #[program]
-pub mod audit_verify_sol {
+pub mod solkeeper {
     use super::*;
     pub const PLATFORM_CONFIG_SEED: &'static [u8; 8] = b"platform";
     pub const AUDITOR_SEED: &'static [u8; 8] = b"auditors";

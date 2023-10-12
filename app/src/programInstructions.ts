@@ -7,13 +7,13 @@ import {
   SystemProgram,
 } from "@solana/web3.js";
 import { AnchorProvider, Provider, web3, Wallet } from "@coral-xyz/anchor";
-// import { createInitializeInstruction } from "../generated/index";
 import {
   PROGRAM_ID,
   createInitializePlatformInstruction,
   createInitializeAuditorInstruction,
   createModifyAuditorVerifyStatusInstruction,
   AuditorInfo,
+  createAddAuditInstruction,
 } from "../generated";
 import * as fs from "fs";
 import { BN } from "bn.js";
@@ -29,7 +29,13 @@ export function hexToUint8Array(hex: string): number[] {
 export async function uploadAudit(
   clusterUrl: string,
   pathToWallet: string,
-  pathToParameters: string
+  auditedProgramId: PublicKey,
+  auditedImplementation: PublicKey,
+  auditDate: string,
+  byteCodeHash: string,
+  auditFileHash: string,
+  auditSummary: string,
+  auditUrl: string
 ) {
   // Connect to the local Solana cluster
   const connection = new Connection(clusterUrl, "confirmed");
@@ -39,44 +45,46 @@ export async function uploadAudit(
   const userKP = Keypair.fromSecretKey(new Uint8Array(walletData));
   const walletKeyPair = new Wallet(userKP);
 
-  // Create a provider for the connection and wallet
-  const provider: Provider = new AnchorProvider(connection, walletKeyPair, {
-    preflightCommitment: "confirmed",
-  });
+  const [auditorInfo, bump1] = await PublicKey.findProgramAddress(
+    [Buffer.from("auditors"), walletKeyPair.publicKey.toBuffer()],
+    PROGRAM_ID
+  );
 
-  // Read parameters from the JSON file
-  const parameters = JSON.parse(fs.readFileSync(pathToParameters, "utf-8"));
+  const [auditInfo, bump2] = await PublicKey.findProgramAddress(
+    [
+      Buffer.from("audit123"),
+      auditedProgramId.toBuffer(),
+      auditedImplementation.toBuffer(),
+      auditorInfo.toBuffer(),
+    ],
+    PROGRAM_ID
+  );
 
-  const auditInfo = Keypair.generate();
-
-  // Call your program's initialize function using parameters from the JSON file
-  const auditedProgramId = new PublicKey(parameters.auditedProgramId);
-  const auditDate = parameters.auditDate;
-
-  // Convert the hash string into a Uint8Array
-  const hashHex = parameters.hash;
-  const hashUint8Array = hexToUint8Array(hashHex);
-
-  // // Initialize your program's ID and initialize a client
-  // let ix = createInitializeInstruction(
-  //   {
-  //     auditInfo: auditInfo.publicKey,
-  //     auditor: walletKeyPair.publicKey,
-  //     systemProgram: SystemProgram.programId,
-  //   },
-  //   {
-  //     auditedProgramId,
-  //     auditDate,
-  //     hash: hashUint8Array,
-  //   }
-  // );
+  // Add audit
+  let ix = createAddAuditInstruction(
+    {
+      auditInfo,
+      auditorInfo,
+      auditor: walletKeyPair.publicKey,
+      systemProgram: SystemProgram.programId,
+    },
+    {
+      auditedProgramId,
+      auditedImplementation,
+      auditDate: new BN(auditDate),
+      hash: hexToUint8Array(byteCodeHash),
+      auditFileHash: hexToUint8Array(auditFileHash),
+      auditSummary,
+      auditUrl,
+    }
+  );
 
   // // Sign and send the transaction
-  // let transaction: Transaction = new Transaction().add(ix);
-  // await sendAndConfirmTransaction(connection, transaction, [userKP, auditInfo]);
+  let transaction: Transaction = new Transaction().add(ix);
+  await sendAndConfirmTransaction(connection, transaction, [userKP]);
 
   console.log(
-    "Transaction confirmed. Audit account created: " + auditInfo.publicKey
+    "Transaction confirmed. Audit account created: " + auditInfo.toString()
   );
 }
 

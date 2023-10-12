@@ -4,7 +4,18 @@ import {
   initializeAuditorAccount,
   verifyAuditor,
   getAuditorFromChain,
+  uploadAudit,
 } from "./programInstructions";
+
+import {
+  getImplementationAddress,
+  calculateFileSHA256FromUrl,
+  getBinFromChain,
+  addPaddingToBuffer,
+} from "./lib";
+import { PublicKey } from "@solana/web3.js";
+import fs from "fs";
+import { sha256 } from "js-sha256";
 
 export async function addAuditorAccountCommand(
   pathToWallet: string,
@@ -57,6 +68,92 @@ export async function verifyAuditorCommand(
     pathToWallet,
     auditorPubkey,
     isVerified === "true" ? true : false
+  );
+}
+
+export async function addAuditCommand(
+  pathToWallet: string,
+  clusterUrl: string
+) {
+  const auditedProgramId = await input({
+    message: "Audited programId:",
+  });
+
+  const auditedProgramIdKey = new PublicKey(auditedProgramId);
+  let implementationAddress: string;
+  try {
+    let resonse = await getImplementationAddress(
+      auditedProgramIdKey,
+      clusterUrl
+    );
+
+    implementationAddress = resonse.toString();
+    // if implementation address not found - user should put it by hand
+  } catch {
+    implementationAddress = "";
+  }
+
+  const implementationAddressAnswer = await input({
+    message: "Implementation address:",
+    default: implementationAddress,
+  });
+
+  const pathToLocallyBuildByteCode = await input({
+    message: "Path to audited bytecode build locally:",
+  });
+
+  //@todo should get bin from implementation
+  //(can be different if user provide different implementation than default)
+  const deployedBin = await getBinFromChain(auditedProgramIdKey, clusterUrl);
+  const localBin = fs.readFileSync(pathToLocallyBuildByteCode);
+
+  const { buf1, buf2 } = addPaddingToBuffer(deployedBin, localBin);
+
+  const areSame = buf1.equals(buf2);
+
+  const binHash = sha256(buf1);
+
+  if (!areSame) {
+    console.log("Different bytecodes. Exiting...");
+    return;
+  }
+
+  const auditDate = await input({
+    message: "Audit date (UNIX timestamp):",
+  });
+
+  const auditSummary = await input({
+    message: "Audit summary (max 250 characters):",
+  });
+
+  const auditUrl = await input({
+    message: "Audit Report URL:",
+  });
+
+  const auditReportHash = await calculateFileSHA256FromUrl(auditUrl);
+
+  await confirm({
+    message: `
+            Audited Program ID: ${auditedProgramIdKey.toString()}
+            Implementation address: ${implementationAddressAnswer}
+            Bytecode hash: ${binHash}
+            Audit date: ${auditDate}
+            Audit summary: ${auditSummary}
+            Audit url: ${auditUrl}
+            Audit report hash: ${auditReportHash}
+      `,
+  });
+
+  await uploadAudit(
+    clusterUrl,
+    pathToWallet,
+    auditedProgramIdKey,
+    new PublicKey(implementationAddressAnswer),
+    auditDate,
+    binHash,
+    auditReportHash,
+    auditSummary,
+    auditUrl
   );
 }
 

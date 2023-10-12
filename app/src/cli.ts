@@ -12,6 +12,7 @@ import {
   addAuditorAccountCommand,
   verifyAuditorCommand,
   getAuditorCommand,
+  addAuditCommand,
 } from "./commands";
 import select, { Separator } from "@inquirer/select";
 
@@ -114,7 +115,29 @@ program
   .action((options) => {
     void (async () => {
       const { clusterUrl, pathToWallet, pathToParameters } = options;
-      await uploadAudit(clusterUrl, pathToWallet, pathToParameters);
+      const parameters = JSON.parse(fs.readFileSync(pathToParameters, "utf-8"));
+
+      const {
+        auditedProgramId,
+        implementationAddress,
+        auditDate,
+        byteCodeHash,
+        auditFileHash,
+        auditSummary,
+        auditUrl,
+      } = parameters;
+
+      await uploadAudit(
+        clusterUrl,
+        pathToWallet,
+        new PublicKey(auditedProgramId),
+        new PublicKey(implementationAddress),
+        auditDate,
+        byteCodeHash,
+        auditFileHash,
+        auditSummary,
+        auditUrl
+      );
     })();
   });
 
@@ -139,7 +162,7 @@ program
   .action((options) => {
     void (async () => {
       const answer = await select({
-        message: "Select a package manager",
+        message: "Action:",
         choices: [
           {
             name: "Add auditor account",
@@ -176,7 +199,7 @@ program
           await addAuditorAccountCommand(pathToWallet, clusterUrl);
           break;
         case "addAudit":
-          console.log("Not implemented");
+          await addAuditCommand(pathToWallet, clusterUrl);
           break;
         case "getAudits":
           console.log("Not implemented");

@@ -20,6 +20,7 @@ export type AuditorInfoArgs = {
   owner: web3.PublicKey
   registrationTime: beet.bignum
   escrowAmount: beet.bignum
+  counter: beet.bignum
   isVerified: boolean
   isActive: boolean
 }
@@ -39,6 +40,7 @@ export class AuditorInfo implements AuditorInfoArgs {
     readonly owner: web3.PublicKey,
     readonly registrationTime: beet.bignum,
     readonly escrowAmount: beet.bignum,
+    readonly counter: beet.bignum,
     readonly isVerified: boolean,
     readonly isActive: boolean
   ) {}
@@ -53,6 +55,7 @@ export class AuditorInfo implements AuditorInfoArgs {
       args.owner,
       args.registrationTime,
       args.escrowAmount,
+      args.counter,
       args.isVerified,
       args.isActive
     )
@@ -188,6 +191,17 @@ export class AuditorInfo implements AuditorInfoArgs {
         }
         return x
       })(),
+      counter: (() => {
+        const x = <{ toNumber: () => number }>this.counter
+        if (typeof x.toNumber === 'function') {
+          try {
+            return x.toNumber()
+          } catch (_) {
+            return x
+          }
+        }
+        return x
+      })(),
       isVerified: this.isVerified,
       isActive: this.isActive,
     }
@@ -211,6 +225,7 @@ export const auditorInfoBeet = new beet.FixableBeetStruct<
     ['owner', beetSolana.publicKey],
     ['registrationTime', beet.i64],
     ['escrowAmount', beet.u64],
+    ['counter', beet.u64],
     ['isVerified', beet.bool],
     ['isActive', beet.bool],
   ],

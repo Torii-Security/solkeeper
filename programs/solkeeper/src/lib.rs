@@ -51,7 +51,7 @@ pub mod solkeeper {
         audit_info.audit_summary = audit_summary;
         audit_info.audit_file_hash = audit_file_hash;
         audit_info.hash = hash;
-        auditor_info.counter += 1;
+        auditor_info.counter = auditor_info.counter + 1;
         Ok(())
     }
 

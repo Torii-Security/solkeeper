@@ -157,42 +157,29 @@ export function addPaddingToBuffer(
   }
 }
 
-export async function getAllAuditsForProgram(
-  programId: PublicKey,
-  clusterUrl: string
-) {
-  // Connect to the Solana cluster
-  const connection = new Connection("http://localhost:8899", "confirmed");
-  const programToValidate = new PublicKey(
-    "Ait72SouqcsR3GwpfNwQDeDzPQHLdoG1BvL7qiFb6xHe"
-  );
+export async function validateAudits(audits: any, clusterUrl: string) {
+  if (audits.length === 0) {
+    return [];
+  }
 
   try {
-    let deployedBin = await getBinFromChain(programId, clusterUrl);
-    const binHash = sha256(deployedBin);
-    // Fetch all accounts for the specified program ID
-    const accounts = await connection.getProgramAccounts(programId, {
-      commitment: "confirmed",
-    });
+    // programId should be the same across audits
+    const programToValidate = audits[0].auditedProgramId;
+    let deployedBin = await getBinFromChain(
+      new PublicKey(programToValidate),
+      clusterUrl
+    );
 
+    const binHash = sha256(deployedBin);
     // Print the retrieved accounts
-    for (const account of accounts) {
-      const acc = AuditInfo.deserialize(account.account.data)[0];
-      if (acc.auditedProgramId.toString() === programToValidate.toString()) {
-        //@todo should be stored as string on chain
-        const hexHash = uint8ArrayToHex(acc.hash);
-        if (binHash === hexHash) {
-          console.log("Found valid audit");
-        } else {
-          console.log("Stale audit");
-        }
-        console.log(
-          acc.auditDate.toString(),
-          acc.auditor.toString(),
-          acc.hash.toString()
-        );
+    for (const audit of audits) {
+      if (audit.hash === binHash) {
+        audit.isUpToDate = true;
+      } else {
+        audit.isUpToDate = false;
       }
     }
+    return audits;
   } catch (error) {
     console.error("Error:", error);
   }

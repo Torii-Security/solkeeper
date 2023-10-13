@@ -71,7 +71,7 @@ export const initializeAuditorInstructionDiscriminator = [
 export function createInitializeAuditorInstruction(
   accounts: InitializeAuditorInstructionAccounts,
   args: InitializeAuditorInstructionArgs,
-  programId = new web3.PublicKey('3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg')
+  programId = new web3.PublicKey('Cg96DsFYhhd9drE77seUS3Tqg1t8GvEFwt4mACJ1SMvj')
 ) {
   const [data] = initializeAuditorStruct.serialize({
     instructionDiscriminator: initializeAuditorInstructionDiscriminator,

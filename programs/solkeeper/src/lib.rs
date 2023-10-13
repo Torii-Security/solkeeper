@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg");
+declare_id!("Cg96DsFYhhd9drE77seUS3Tqg1t8GvEFwt4mACJ1SMvj");
 
 #[program]
 pub mod solkeeper {
@@ -38,13 +38,14 @@ pub mod solkeeper {
         audit_url: String
     ) -> Result<()> {
         let audit_info = &mut ctx.accounts.audit_info;
+        let auditor_info = &mut ctx.accounts.auditor_info;
 
         require!(audit_summary.len() < 255, Errors::SummaryTooLarge);
         require!(audit_url.len() < 255, Errors::UrlTooLarge);
 
         audit_info.audited_program_id = audited_program_id;
         audit_info.audited_implementation = audited_implementation;
-        audit_info.auditor = ctx.accounts.auditor.key();
+        audit_info.auditor = auditor_info.key();
         audit_info.audit_date = audit_date;
         audit_info.audit_url = audit_url;
         audit_info.audit_summary = audit_summary;
@@ -203,14 +204,14 @@ pub mod solkeeper {
 #[account]
 #[derive(Default)]
 pub struct AuditInfo {
-    audited_program_id: Pubkey,
-    audited_implementation: Pubkey,
-    auditor: Pubkey,
-    audit_date: i64,
-    hash: [u8; 32],
-    audit_url: String,
-    audit_summary: String,
-    audit_file_hash: [u8; 32],
+    audited_program_id: Pubkey, //32
+    audited_implementation: Pubkey, //32
+    auditor: Pubkey, // 32
+    audit_date: i64, // 8
+    hash: [u8; 32], //32
+    audit_url: String, //255
+    audit_summary: String, //255
+    audit_file_hash: [u8; 32], //32
 }
 
 #[account]
@@ -247,7 +248,7 @@ pub struct AddAudit<'info> {
                     auditor_info.key().as_ref()
                 ], 
         payer = auditor, 
-        space = 8 + std::mem::size_of::<AuditInfo>() + 8,
+        space = 8 + 32 + 32 + 8 + 32 + 255 + 255 + 32 + 8,
         bump
     )]
     pub audit_info: Account<'info, AuditInfo>,

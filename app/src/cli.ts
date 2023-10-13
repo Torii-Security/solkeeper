@@ -1,11 +1,7 @@
 import { Command } from "commander";
 import fs from "fs";
 import { sha256 } from "js-sha256";
-import {
-  getBinFromChain,
-  addPaddingToBuffer,
-  getAllAuditsForProgram,
-} from "./lib";
+import { getBinFromChain, addPaddingToBuffer } from "./lib";
 import { PublicKey } from "@solana/web3.js";
 import { uploadAudit, initializePlatform } from "./programInstructions";
 import {
@@ -13,6 +9,7 @@ import {
   verifyAuditorCommand,
   getAuditorCommand,
   addAuditCommand,
+  getAuditsCommand,
 } from "./commands";
 import select, { Separator } from "@inquirer/select";
 
@@ -142,19 +139,6 @@ program
   });
 
 program
-  .command("get-audits")
-  .description("Get audits")
-  .requiredOption("--programId <programId>", "Program ID")
-  .requiredOption("--clusterUrl <clusterUrl>", "Cluster URL")
-  .action((options) => {
-    void (async () => {
-      const { clusterUrl } = options;
-      const programId = new PublicKey(options.programId);
-      await getAllAuditsForProgram(programId, clusterUrl);
-    })();
-  });
-
-program
   .command("start")
   .description("Start")
   .option("--pathToWallet <pathToWallet>", "Path to wallet")
@@ -202,7 +186,7 @@ program
           await addAuditCommand(pathToWallet, clusterUrl);
           break;
         case "getAudits":
-          console.log("Not implemented");
+          await getAuditsCommand(clusterUrl);
           break;
         case "getAuditor":
           await getAuditorCommand(clusterUrl);

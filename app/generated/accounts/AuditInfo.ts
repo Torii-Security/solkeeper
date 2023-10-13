@@ -101,7 +101,7 @@ export class AuditInfo implements AuditInfoArgs {
    */
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey(
-      '3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg'
+      'Cg96DsFYhhd9drE77seUS3Tqg1t8GvEFwt4mACJ1SMvj'
     )
   ) {
     return beetSolana.GpaBuilder.fromStruct(programId, auditInfoBeet)

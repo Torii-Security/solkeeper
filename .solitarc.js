@@ -7,7 +7,7 @@ const binaryInstallDir = path.join(__dirname, ".crates");
 module.exports = {
   idlGenerator: "anchor",
   programName: "solkeeper",
-  programId: "3NBf9yiyidXZ5SZ5ggV6Jr5X62uixNCxAKxnKjdeKmAg",
+  programId: "Cg96DsFYhhd9drE77seUS3Tqg1t8GvEFwt4mACJ1SMvj",
   removeExistingIdl: true,
   idlDir,
   sdkDir,

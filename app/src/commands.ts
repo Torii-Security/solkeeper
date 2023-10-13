@@ -5,6 +5,7 @@ import {
   verifyAuditor,
   getAuditorFromChain,
   uploadAudit,
+  getAuditsFromChain,
 } from "./programInstructions";
 
 import {
@@ -12,6 +13,7 @@ import {
   calculateFileSHA256FromUrl,
   getBinFromChain,
   addPaddingToBuffer,
+  validateAudits,
 } from "./lib";
 import { PublicKey } from "@solana/web3.js";
 import fs from "fs";
@@ -169,4 +171,20 @@ export async function getAuditorCommand(clusterUrl: string) {
   });
 
   await getAuditorFromChain(clusterUrl, auditorPubkey);
+}
+
+export async function getAuditsCommand(clusterUrl: string) {
+  const programId = await input({
+    message: "Program pubkey:",
+  });
+
+  await confirm({
+    message: `
+            Program pubkey: ${programId}
+      `,
+  });
+
+  const audits = await getAuditsFromChain(clusterUrl, programId);
+  const auditsVerified = await validateAudits(audits, clusterUrl);
+  console.log(auditsVerified);
 }

@@ -13,10 +13,14 @@ import {
   createInitializeAuditorInstruction,
   createModifyAuditorVerifyStatusInstruction,
   AuditorInfo,
+  AuditInfo,
   createAddAuditInstruction,
+  auditInfoDiscriminator,
 } from "../generated";
 import * as fs from "fs";
 import { BN } from "bn.js";
+import * as bs58 from "bs58";
+import { uint8ArrayToHex } from "./lib";
 
 export function hexToUint8Array(hex: string): number[] {
   const result = [];
@@ -247,16 +251,75 @@ export async function getAuditorFromChain(
     PROGRAM_ID
   );
 
-  const auditorInfoData = await connection.getAccountInfo(auditorInfo);
+  let auditor = await fetchAuditorInfo(connection, auditorInfo);
 
-  if (!auditorInfoData || auditorInfoData?.data.length == 0) {
-    console.log("Auditor not registered");
+  console.log(auditor ? auditor.pretty() : {});
+}
+
+async function fetchAuditorInfo(
+  connection: Connection,
+  auditorPublicKey: PublicKey
+): Promise<AuditorInfo | null> {
+  const auditorAccountInfo = await connection.getAccountInfo(auditorPublicKey);
+  if (auditorAccountInfo) {
+    const [auditorInfoDeserialized, num] = AuditorInfo.fromAccountInfo(
+      auditorAccountInfo,
+      0
+    );
+    return auditorInfoDeserialized;
+  }
+  return null;
+}
+
+export async function getAuditsFromChain(
+  clusterUrl: string,
+  programId: string
+) {
+  // Connect to the local Solana cluster
+  const connection = new Connection(clusterUrl, "confirmed");
+
+  const audits = await connection.getProgramAccounts(PROGRAM_ID, {
+    filters: [
+      {
+        memcmp: {
+          offset: 0, // number of bytes
+          bytes: bs58.encode(auditInfoDiscriminator), // base58 encoded string
+        },
+      },
+      {
+        memcmp: {
+          offset: 8, // number of bytes
+          bytes: programId, // base58 encoded string
+        },
+      },
+    ],
+  });
+
+  if (audits.length === 0) {
+    return audits;
   }
 
-  if (auditorInfoData) {
-    const [auditorInfoDeserialized, num] =
-      AuditorInfo.fromAccountInfo(auditorInfoData);
-    console.log(auditorInfoDeserialized.isVerified);
-    console.log(auditorInfoDeserialized.pretty());
+  let response: any[] = [];
+
+  for (const audit of audits) {
+    const [auditInfoDeserialized, num] = AuditInfo.fromAccountInfo(
+      audit.account
+    );
+    let auditor = await fetchAuditorInfo(
+      connection,
+      auditInfoDeserialized.auditor
+    );
+
+    let auditPretty: any = auditInfoDeserialized.pretty();
+    auditPretty.auditFileHash = uint8ArrayToHex(auditPretty.auditFileHash);
+    auditPretty.hash = uint8ArrayToHex(auditPretty.hash);
+
+    const auditorPretty = auditor ? auditor.pretty() : {};
+    response.push({
+      ...auditPretty,
+      ...auditorPretty,
+    });
   }
+
+  return response;
 }

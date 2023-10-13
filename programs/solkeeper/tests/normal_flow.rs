@@ -30,7 +30,6 @@ async fn happy_flow() {
 
     let auditor = Keypair::new();
     let owner = Keypair::new();
-    let audit_info_acc = Keypair::new();
 
     program.add_account(
         auditor.pubkey(),
@@ -61,8 +60,8 @@ async fn happy_flow() {
         &[
             AUDIT_SEED,
             audited_program_id.as_ref(),
-            audited_implementation.as_ref(),
             auditor_info.as_ref(),
+            &0u64.to_le_bytes(),
         ],
         &solkeeper::id(),
     );

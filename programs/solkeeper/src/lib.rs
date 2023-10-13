@@ -51,6 +51,7 @@ pub mod solkeeper {
         audit_info.audit_summary = audit_summary;
         audit_info.audit_file_hash = audit_file_hash;
         audit_info.hash = hash;
+        auditor_info.counter += 1;
         Ok(())
     }
 
@@ -152,6 +153,7 @@ pub mod solkeeper {
         auditor_info.url = url;
         auditor_info.is_active = true;
         auditor_info.is_verified = false;
+        auditor_info.counter = 0;
         Ok(())
     }
 
@@ -232,6 +234,7 @@ pub struct AuditorInfo {
     owner: Pubkey,
     registration_time: i64,
     escrow_amount: u64,
+    counter: u64,
     pub is_verified: bool,
     is_active: bool
 }
@@ -244,8 +247,8 @@ pub struct AddAudit<'info> {
         seeds = [
                     AUDIT_SEED, 
                     audited_program_id.as_ref(), 
-                    audited_implementation.as_ref(), 
-                    auditor_info.key().as_ref()
+                    auditor_info.key().as_ref(),
+                    &auditor_info.counter.to_le_bytes()
                 ], 
         payer = auditor, 
         space = 8 + 32 + 32 + 8 + 32 + 255 + 255 + 32 + 8,

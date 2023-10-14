@@ -122,7 +122,7 @@ export async function addAuditCommand(
 
   const auditDate = await input({
     message: "Audit date (UNIX timestamp):",
-    default: Date.now().toString(),
+    default: Math.floor(Date.now() / 1000).toString(),
   });
 
   const auditSummary = await input({

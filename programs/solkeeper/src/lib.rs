@@ -256,6 +256,7 @@ pub struct AddAudit<'info> {
     )]
     pub audit_info: Account<'info, AuditInfo>,
     #[account(
+        mut,
         seeds = [AUDITOR_SEED, auditor.key().as_ref()], 
         constraint = auditor_info.is_active,
         bump

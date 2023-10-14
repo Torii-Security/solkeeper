@@ -54,12 +54,19 @@ export async function uploadAudit(
     PROGRAM_ID
   );
 
+  const auditorFromChain = await fetchAuditorInfo(connection, auditorInfo);
+
+  if (!auditorFromChain) {
+    console.log("Error: No auditor account.");
+    return;
+  }
+
   const [auditInfo, bump2] = await PublicKey.findProgramAddress(
     [
       Buffer.from("audit123"),
       auditedProgramId.toBuffer(),
-      auditedImplementation.toBuffer(),
       auditorInfo.toBuffer(),
+      new BN(auditorFromChain.counter).toArrayLike(Buffer, "le", 8),
     ],
     PROGRAM_ID
   );

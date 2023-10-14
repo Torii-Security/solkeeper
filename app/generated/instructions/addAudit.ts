@@ -49,7 +49,7 @@ export const addAuditStruct = new beet.FixableBeetArgsStruct<
  * Accounts required by the _addAudit_ instruction
  *
  * @property [_writable_] auditInfo
- * @property [] auditorInfo
+ * @property [_writable_] auditorInfo
  * @property [_writable_, **signer**] auditor
  * @category Instructions
  * @category AddAudit
@@ -94,7 +94,7 @@ export function createAddAuditInstruction(
     },
     {
       pubkey: accounts.auditorInfo,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {

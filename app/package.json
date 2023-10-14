@@ -1,14 +1,14 @@
 {
-  "name": "torii-proof-auditors",
+  "name": "solkeeper",
   "version": "0.0.0-development",
-  "description": "Torii Proof auditors tool",
+  "description": "Solana audits on chain",
   "files": [
     "!lib/__tests__/**/*",
     "lib/**/*",
     "bin/**/*"
   ],
   "bin": {
-    "my-command": "./bin/index.js"
+    "audit": "./bin/index.js"
   },
   "scripts": {
     "build": "tsc",

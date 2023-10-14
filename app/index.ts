@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Command } from "commander";
 import fs from "fs";
 import { sha256 } from "js-sha256";
@@ -11,7 +13,7 @@ import {
   addAuditCommand,
   getAuditsCommand,
 } from "./src/commands";
-import select, { Separator } from "@inquirer/select";
+import select from "@inquirer/select";
 
 const packageJson = require("../package.json");
 const version: string = packageJson.version;

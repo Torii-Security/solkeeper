@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "moduleResolution": "node",
     "strict": true,
+    "moduleResolution": "node",
     "outDir": "bin/",
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -12,6 +12,9 @@
   },
   "include": [
     "src/**/*.ts",
-    "index.ts"
+    "index.ts",
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }

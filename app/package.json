@@ -8,14 +8,14 @@
     "bin/**/*"
   ],
   "bin": {
-    "audit": "./bin/index.js"
+    "solkeeper": "./bin/index.js"
   },
   "scripts": {
     "build": "tsc",
     "clean": "rm -rf ./lib/",
     "cm": "cz",
     "lint": "eslint ./src/ --fix",
-    "start": "TS_NODE_FILES=true ts-node ./src/cli.ts",
+    "start": "TS_NODE_FILES=true ts-node index.ts",
     "test:watch": "jest --watch",
     "test": "jest",
     "typecheck": "tsc --noEmit"

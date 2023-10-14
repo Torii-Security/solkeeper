@@ -1,16 +1,16 @@
 import { Command } from "commander";
 import fs from "fs";
 import { sha256 } from "js-sha256";
-import { getBinFromChain, addPaddingToBuffer } from "./lib";
+import { getBinFromChain, addPaddingToBuffer } from "./src/lib";
 import { PublicKey } from "@solana/web3.js";
-import { uploadAudit, initializePlatform } from "./programInstructions";
+import { uploadAudit, initializePlatform } from "./src/programInstructions";
 import {
   addAuditorAccountCommand,
   verifyAuditorCommand,
   getAuditorCommand,
   addAuditCommand,
   getAuditsCommand,
-} from "./commands";
+} from "./src/commands";
 import select, { Separator } from "@inquirer/select";
 
 const packageJson = require("../package.json");
@@ -19,7 +19,7 @@ const version: string = packageJson.version;
 const program = new Command();
 
 program
-  .name("solana-verifier")
+  .name("solkeeper")
   .description("Torii Solana Verifier tool")
   .version(version);
 

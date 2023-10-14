@@ -2,12 +2,16 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
+    "moduleResolution": "node",
     "strict": true,
-    "outDir": "lib/",
+    "outDir": "bin/",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "declaration": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "index.ts"
+  ]
 }
